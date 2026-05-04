@@ -1,4 +1,4 @@
-package gui;
+package main.java.gui;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -20,23 +20,27 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import java.util.List;
 
-import helper.Triple;
+import main.java.helper.Triple;
+import main.java.helper.JsonManager;
 
-import log.Logger;
+import main.java.log.Logger;
 
 public class MainApplicationFrame extends JFrame {
     private final JDesktopPane desktopPane = new JDesktopPane();
+    private final GameLogic m_logic = new GameLogic();
     
     public MainApplicationFrame() {
         //Make the big window be indented 50 pixels from each edge
         //of the screen.
-        int inset = 50;        
+        int inset = 50;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setBounds(inset, inset,
             screenSize.width - inset * 2,
             screenSize.height - inset * 2);
 
         setContentPane(desktopPane);
+        desktopPane.setPreferredSize(new Dimension(1000, 1000));
+        desktopPane.setName("desktop");
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -46,12 +50,19 @@ public class MainApplicationFrame extends JFrame {
         });
         
         LogWindow logWindow = createLogWindow();
+        logWindow.setName("log");
         addWindow(logWindow);
 
-        GameWindow gameWindow = new GameWindow();
+        GameMonitorWindow gameMonitor = new GameMonitorWindow(m_logic);
+        gameMonitor.setName("gameMonitor");
+        addWindow(gameMonitor);
+
+        GameWindow gameWindow = new GameWindow(m_logic);
+        gameWindow.setName("game");
         gameWindow.setSize(400, 400);
         addWindow(gameWindow);
 
+        JsonManager.load_positions(desktopPane);
         setJMenuBar(generateMenuBar());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
@@ -62,7 +73,7 @@ public class MainApplicationFrame extends JFrame {
         logWindow.setSize(300, 800);
         setMinimumSize(logWindow.getSize());
         logWindow.pack();
-        Logger.debug("Протокол работает 2");
+        Logger.debug("Протокол работает");
         return logWindow;
     }
     
@@ -74,12 +85,13 @@ public class MainApplicationFrame extends JFrame {
     public void quit() {
         var answer = JOptionPane.showConfirmDialog(null, "Выйти?", "Выйти", JOptionPane.YES_NO_OPTION);
         if (answer == JOptionPane.YES_OPTION) {
+            JsonManager.save_positions(desktopPane);
             System.exit(0);
         } else{
             setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         }
     }
-    
+
 //    protected JMenuBar createMenuBar() {
 //        JMenuBar menuBar = new JMenuBar();
 // 

@@ -1,0 +1,16 @@
+plugins {
+    id "application"
+}
+apply plugin : "java" 
+
+application {
+    mainClassName = "main.java.gui.RobotsProgram"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.0'
+}

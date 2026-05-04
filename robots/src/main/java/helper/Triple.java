@@ -1,4 +1,4 @@
-package helper;
+package main.java.helper;
 
 public class Triple<A, B, C> {
     public final A a;
