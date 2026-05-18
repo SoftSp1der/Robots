@@ -7,8 +7,15 @@ import java.awt.TextArea;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 
-public class GameMonitorWindow extends JInternalFrame implements GameChangeListener {
+import main.java.helper.Pair;
+import main.java.helper.Triple;
+
+import java.util.Observable;
+import java.util.Observer;
+
+public class GameMonitorWindow extends JInternalFrame implements Observer {
     private TextArea m_logContent;
+    private final GameMonitorPresenter presenter;
 
     private volatile int m_robotPositionX;
     private volatile int m_robotPositionY; 
@@ -20,12 +27,13 @@ public class GameMonitorWindow extends JInternalFrame implements GameChangeListe
         super("Статистика игрового поля", true, true, true, true);
         m_logContent = new TextArea("");
         m_logContent.setSize(300, 500);
-        logic.subscribe(this);
+        presenter = new GameMonitorPresenter<GameMonitorWindow, GameLogic>(this, logic);
         
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(m_logContent, BorderLayout.CENTER);
         getContentPane().add(panel);
         pack();
+        setName("gameMonitor");
         update_text();
     }
 
@@ -38,15 +46,18 @@ public class GameMonitorWindow extends JInternalFrame implements GameChangeListe
         m_logContent.invalidate();
     }
 
-    public void onCoordsChanged(int robotPositionX, int robotPositionY, double robotDirection) {
-        m_robotPositionX = robotPositionX;
-        m_robotPositionY = robotPositionY;
-        m_robotDirection = GameLogic.round(robotDirection * 180 / Math.PI);
-        EventQueue.invokeLater(this::update_text);
-    }
-    public void onTargetCoordsChanged(int targetPositionX, int targetPositionY) {
-        m_targetPositionX = targetPositionX;
-        m_targetPositionY = targetPositionY;
+    @Override
+    public void update(Observable ob, Object obj) {
+        if (obj instanceof Triple<?, ?, ?>) {
+            var triple = (Triple<Integer, Integer, Double>) obj;
+            m_robotPositionX = triple.a;
+            m_robotPositionY = triple.b;
+            m_robotDirection = GameLogic.round(triple.c * 180 / Math.PI);
+        } else {
+            var pair = (Pair<Integer, Integer>) obj;
+            m_targetPositionX = pair.a;
+            m_targetPositionY = pair.b;
+        }
         EventQueue.invokeLater(this::update_text);
     }
 }

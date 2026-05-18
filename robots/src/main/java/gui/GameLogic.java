@@ -1,13 +1,16 @@
 package main.java.gui;
 
-import java.awt.Point;
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class GameLogic {
+import main.java.helper.Pair;
+import main.java.helper.Triple;
+
+import java.util.Observable;
+import java.util.Observer;
+
+public class GameLogic extends Observable implements Observer, ICauseUpdate {
     private final Timer m_timer = initTimer();
-    private final ArrayList<GameChangeListener> m_listeners;
     
     private static Timer initTimer() {
         Timer timer = new Timer("events generator", true);
@@ -20,33 +23,38 @@ public class GameLogic {
     private volatile double m_velocity = maxAngularVelocity;
     private volatile int m_counter = 0;
 
-    private volatile int m_targetPositionX = 150;
-    private volatile int m_targetPositionY = 100;
+    private volatile int m_targetPositionX;
+    private volatile int m_targetPositionY;
     
     private static final double maxVelocity = 0.1; 
     private static final double maxAngularVelocity = 0.001;
 
     public GameLogic() {
-        m_listeners = new ArrayList<GameChangeListener>();
         m_timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 onModelUpdateEvent();
+                updateView();
             }
         }, 0, 10);
     }
 
-    public void subscribe(GameChangeListener listener) {
-        synchronized (m_listeners) {
-            m_listeners.add(listener);
-        }
+    public void updateView() {
+        setChanged();
+        notifyObservers(new Triple<Integer, Integer, Double>(round(m_robotPositionX), round(m_robotPositionY), m_robotDirection));
+    }
+    public void updateModel() {
+        setChanged();
+        notifyObservers(new Pair<Integer, Integer>(m_targetPositionX, m_targetPositionY));
     }
 
-    protected void setTargetPosition(Point p) {
-        m_targetPositionX = p.x;
-        m_targetPositionY = p.y;
-        for (var listener : m_listeners) {
-            listener.onTargetCoordsChanged(m_targetPositionX, m_targetPositionY);
+    @Override
+    public void update(Observable ob, Object obj) {
+        if (obj instanceof Pair<?, ?>) {
+            var pair = (Pair<Integer, Integer>) obj;
+            m_targetPositionX = pair.a;
+            m_targetPositionY = pair.b;
+            updateModel();
         }
     }
 
@@ -100,9 +108,6 @@ public class GameLogic {
         }
 
         moveRobot(velocity, angularVelocity, 10);
-        for (var listener : m_listeners) {
-            listener.onCoordsChanged(round(m_robotPositionX), round(m_robotPositionY), m_robotDirection);
-        }
     }
 
     public static int round(double value) {

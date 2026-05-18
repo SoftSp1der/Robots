@@ -7,20 +7,25 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.JPanel;
 
-public class GameVisualizer extends JPanel implements GameChangeListener {
+import main.java.helper.Triple;
+
+public class GameVisualizer extends JPanel implements Observer {
     private final Timer m_timer = initTimer();
+    private final GameVisualizerPresenter<GameVisualizer, GameLogic> presenter;
 
     private volatile int m_robotPositionX;
     private volatile int m_robotPositionY; 
     private volatile double m_robotDirection;
 
-    private volatile int m_targetPositionX;
-    private volatile int m_targetPositionY;
+    private volatile int m_targetPositionX = 150;
+    private volatile int m_targetPositionY = 100;
     
     private static Timer initTimer() {
         Timer timer = new Timer("events generator", true);
@@ -28,7 +33,7 @@ public class GameVisualizer extends JPanel implements GameChangeListener {
     }
     
     public GameVisualizer(GameLogic logic) {
-        logic.subscribe(this);
+        presenter = new GameVisualizerPresenter<GameVisualizer, GameLogic>(this, logic, m_targetPositionX, m_targetPositionY);
         m_timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -38,21 +43,24 @@ public class GameVisualizer extends JPanel implements GameChangeListener {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                logic.setTargetPosition(e.getPoint());
+                m_targetPositionX = e.getPoint().x;
+                m_targetPositionY = e.getPoint().y;
+                presenter.updateVals(m_targetPositionX, m_targetPositionY);
+                repaint();
             }
         });
         setDoubleBuffered(true);
     }
 
-    public void onCoordsChanged(int robotPositionX, int robotPositionY, double robotDirection) {
-        m_robotPositionX = robotPositionX;
-        m_robotPositionY = robotPositionY;
-        m_robotDirection = robotDirection;
-    }
-    public void onTargetCoordsChanged(int targetPositionX, int targetPositionY) {
-        m_targetPositionX = targetPositionX;
-        m_targetPositionY = targetPositionY;
-        repaint();
+    @Override
+    public void update(Observable ob, Object obj) {
+        if (obj instanceof Triple<?, ?, ?>) {
+            var triple = (Triple<Integer, Integer, Double>) obj;
+            m_robotPositionX = triple.a;
+            m_robotPositionY = triple.b;
+            m_robotDirection = triple.c;
+            repaint();
+        }
     }
     
     protected void onRedrawEvent() {

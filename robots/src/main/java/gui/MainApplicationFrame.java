@@ -27,7 +27,7 @@ import main.java.log.Logger;
 
 public class MainApplicationFrame extends JFrame {
     private final JDesktopPane desktopPane = new JDesktopPane();
-    private final GameLogic m_logic = new GameLogic();
+    private final GameLogic logic = new GameLogic();
     
     public MainApplicationFrame() {
         //Make the big window be indented 50 pixels from each edge
@@ -50,16 +50,12 @@ public class MainApplicationFrame extends JFrame {
         });
         
         LogWindow logWindow = createLogWindow();
-        logWindow.setName("log");
         addWindow(logWindow);
 
-        GameMonitorWindow gameMonitor = new GameMonitorWindow(m_logic);
-        gameMonitor.setName("gameMonitor");
+        GameMonitorWindow gameMonitor = new GameMonitorWindow(logic);
         addWindow(gameMonitor);
 
-        GameWindow gameWindow = new GameWindow(m_logic);
-        gameWindow.setName("game");
-        gameWindow.setSize(400, 400);
+        GameWindow gameWindow = new GameWindow(logic);
         addWindow(gameWindow);
 
         JsonManager.load_positions(desktopPane);
