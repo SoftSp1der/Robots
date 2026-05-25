@@ -1,10 +1,11 @@
 package test.java.gui;
 
 import main.java.gui.GameVisualizerPresenter;
+import main.java.gui.IViewUpd;
 import main.java.helper.*;
 import java.util.*;
 
-public class MockupView1 implements Observer {
+public class MockupView1 implements IViewUpd {
     private volatile int robotPositionX = 3;
     private volatile int robotPositionY = 3;
     private volatile double robotDirection = 3;
@@ -24,13 +25,10 @@ public class MockupView1 implements Observer {
     }
 
     @Override
-    public void update(Observable ob, Object obj) {
-        if (obj instanceof Triple<?, ?, ?>) {
-            var triple = (Triple<Integer, Integer, Double>) obj;
-            robotPositionX = triple.a;
-            robotPositionY = triple.b;
-            robotDirection = triple.c;
-        }
+    public void receiveUpd(int x, int y, double rot) {
+        robotPositionX = x;
+        robotPositionY = y;
+        robotDirection = rot;
     }
 
     public Pair<Integer, Integer> getTargetPos() {

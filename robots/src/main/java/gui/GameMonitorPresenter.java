@@ -6,12 +6,16 @@ import java.util.Observable;
 import main.java.helper.Pair;
 import main.java.helper.Triple;
 
-public class GameMonitorPresenter <ViewType extends Observer,
-        ModelType extends Observable & Observer & ICauseUpdate> extends Observable implements Observer {
+public class GameMonitorPresenter <ViewType extends IViewUpd & IModelUpd,
+        ModelType extends Observable & ICauseUpdate> implements Observer {
+    private final ViewType view;
+    private final ModelType model;
 
-    public GameMonitorPresenter(ViewType view, ModelType model) {
+    public GameMonitorPresenter(ViewType v, ModelType m) {
+        view = v;
+        model = m;
+
         model.addObserver(this);
-        addObserver(view);
         model.updateModel();
         model.updateView();
     }
@@ -19,11 +23,11 @@ public class GameMonitorPresenter <ViewType extends Observer,
     @Override
     public void update(Observable ob, Object obj) {
         if (obj instanceof Triple<?, ?, ?>) {
-            setChanged();
-            notifyObservers((Triple<Integer, Integer, Double>) obj);
+            var triple = (Triple<Integer, Integer, Double>) obj;
+            view.receiveUpd(triple.a, triple.b, triple.c);
         } else {
-            setChanged();
-            notifyObservers((Pair<Integer, Integer>) obj);
+            var pair = (Pair<Integer, Integer>) obj;
+            view.receiveUpd(pair.a, pair.b);
         }
     }
 }

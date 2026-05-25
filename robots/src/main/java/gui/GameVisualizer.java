@@ -7,16 +7,12 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.JPanel;
 
-import main.java.helper.Triple;
-
-public class GameVisualizer extends JPanel implements Observer {
+public class GameVisualizer extends JPanel implements IViewUpd {
     private final Timer m_timer = initTimer();
     private final GameVisualizerPresenter<GameVisualizer, GameLogic> presenter;
 
@@ -53,14 +49,11 @@ public class GameVisualizer extends JPanel implements Observer {
     }
 
     @Override
-    public void update(Observable ob, Object obj) {
-        if (obj instanceof Triple<?, ?, ?>) {
-            var triple = (Triple<Integer, Integer, Double>) obj;
-            m_robotPositionX = triple.a;
-            m_robotPositionY = triple.b;
-            m_robotDirection = triple.c;
-            repaint();
-        }
+    public void receiveUpd(int x, int y, double rot) {
+        m_robotPositionX = x;
+        m_robotPositionY = y;
+        m_robotDirection = rot;
+        repaint();
     }
     
     protected void onRedrawEvent() {

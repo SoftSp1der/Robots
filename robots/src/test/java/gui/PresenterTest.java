@@ -8,7 +8,7 @@ import main.java.helper.Triple;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GameTest {
+public class PresenterTest {
     MockupModel model = new MockupModel();
     MockupView1 view1 = new MockupView1(model);
     MockupView2 view2 = new MockupView2(model);

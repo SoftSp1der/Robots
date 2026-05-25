@@ -1,10 +1,10 @@
 package test.java.gui;
 
-import main.java.gui.ICauseUpdate;
+import main.java.gui.*;
 import main.java.helper.*;
 import java.util.*;
 
-public class MockupModel extends Observable implements Observer, ICauseUpdate {
+public class MockupModel extends Observable implements IModelUpd, ICauseUpdate {
     private volatile int robotPositionX = 2;
     private volatile int robotPositionY = 2;
     private volatile double robotDirection = 2;
@@ -32,13 +32,10 @@ public class MockupModel extends Observable implements Observer, ICauseUpdate {
     }
 
     @Override
-    public void update(Observable ob, Object obj) {
-        if (obj instanceof Pair<?, ?>) {
-            var pair = (Pair<Integer, Integer>) obj;
-            targetPositionX = pair.a;
-            targetPositionY = pair.b;
-            updateModel();
-        }
+    public void receiveUpd(int x, int y) {
+        targetPositionX = x;
+        targetPositionY = y;
+        updateModel();
     }
 
     public Pair<Integer, Integer> getTargetPos() {

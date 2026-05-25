@@ -1,11 +1,9 @@
 package test.java.gui;
 
-import main.java.gui.GameLogic;
-import main.java.gui.GameMonitorPresenter;
+import main.java.gui.*;
 import main.java.helper.*;
-import java.util.*;
 
-public class MockupView2 implements Observer {
+public class MockupView2 implements IModelUpd, IViewUpd {
     private volatile int robotPositionX = 4;
     private volatile int robotPositionY = 4;
     private volatile double robotDirection = 4;
@@ -19,17 +17,16 @@ public class MockupView2 implements Observer {
     }
 
     @Override
-    public void update(Observable ob, Object obj) {
-        if (obj instanceof Triple<?, ?, ?>) {
-            var triple = (Triple<Integer, Integer, Double>) obj;
-            robotPositionX = triple.a;
-            robotPositionY = triple.b;
-            robotDirection = triple.c;
-        } else {
-            var pair = (Pair<Integer, Integer>) obj;
-            targetPositionX = pair.a;
-            targetPositionY = pair.b;
-        }
+    public void receiveUpd(int x, int y, double rot) {
+        robotPositionX = x;
+        robotPositionY = y;
+        robotDirection = rot;
+    }
+
+    @Override
+    public void receiveUpd(int x, int y) {
+        targetPositionX = x;
+        targetPositionY = y;
     }
 
     public Pair<Integer, Integer> getTargetPos() {

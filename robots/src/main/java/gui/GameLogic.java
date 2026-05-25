@@ -7,9 +7,8 @@ import main.java.helper.Pair;
 import main.java.helper.Triple;
 
 import java.util.Observable;
-import java.util.Observer;
 
-public class GameLogic extends Observable implements Observer, ICauseUpdate {
+public class GameLogic extends Observable implements IModelUpd, ICauseUpdate {
     private final Timer m_timer = initTimer();
     
     private static Timer initTimer() {
@@ -49,13 +48,10 @@ public class GameLogic extends Observable implements Observer, ICauseUpdate {
     }
 
     @Override
-    public void update(Observable ob, Object obj) {
-        if (obj instanceof Pair<?, ?>) {
-            var pair = (Pair<Integer, Integer>) obj;
-            m_targetPositionX = pair.a;
-            m_targetPositionY = pair.b;
-            updateModel();
-        }
+    public void receiveUpd(int x, int y) {
+        m_targetPositionX = x;
+        m_targetPositionY = y;
+        updateModel();
     }
 
     private static double distance(double x1, double y1, double x2, double y2) {

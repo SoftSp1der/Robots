@@ -7,13 +7,7 @@ import java.awt.TextArea;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 
-import main.java.helper.Pair;
-import main.java.helper.Triple;
-
-import java.util.Observable;
-import java.util.Observer;
-
-public class GameMonitorWindow extends JInternalFrame implements Observer {
+public class GameMonitorWindow extends JInternalFrame implements IViewUpd, IModelUpd {
     private TextArea m_logContent;
     private final GameMonitorPresenter presenter;
 
@@ -47,17 +41,17 @@ public class GameMonitorWindow extends JInternalFrame implements Observer {
     }
 
     @Override
-    public void update(Observable ob, Object obj) {
-        if (obj instanceof Triple<?, ?, ?>) {
-            var triple = (Triple<Integer, Integer, Double>) obj;
-            m_robotPositionX = triple.a;
-            m_robotPositionY = triple.b;
-            m_robotDirection = GameLogic.round(triple.c * 180 / Math.PI);
-        } else {
-            var pair = (Pair<Integer, Integer>) obj;
-            m_targetPositionX = pair.a;
-            m_targetPositionY = pair.b;
-        }
+    public void receiveUpd(int x, int y, double rot) {
+        m_robotPositionX = x;
+        m_robotPositionY = y;
+        m_robotDirection = GameLogic.round(rot * 180 / Math.PI);
+        EventQueue.invokeLater(this::update_text);
+    }
+
+    @Override
+    public void receiveUpd(int x, int y) {
+        m_targetPositionX = x;
+        m_targetPositionY = y;
         EventQueue.invokeLater(this::update_text);
     }
 }

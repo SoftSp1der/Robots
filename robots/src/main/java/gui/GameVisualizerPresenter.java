@@ -3,16 +3,18 @@ package main.java.gui;
 import java.util.Observer;
 import java.util.Observable;
 
-import main.java.helper.Pair;
 import main.java.helper.Triple;
 
-public class GameVisualizerPresenter <ViewType extends Observer,
-        ModelType extends Observable & Observer & ICauseUpdate> extends Observable implements Observer {
+public class GameVisualizerPresenter <ViewType extends IViewUpd,
+        ModelType extends Observable & IModelUpd & ICauseUpdate> implements Observer {
+    private final ViewType view;
+    private final ModelType model;
 
-    public GameVisualizerPresenter(ViewType view, ModelType model, int x, int y) {
+    public GameVisualizerPresenter(ViewType v, ModelType m, int x, int y) {
+        view = v;
+        model = m;
+
         model.addObserver(this);
-        addObserver(model);
-        addObserver(view);
         model.updateView();
         updateVals(x, y);
     }
@@ -20,13 +22,12 @@ public class GameVisualizerPresenter <ViewType extends Observer,
     @Override
     public void update(Observable ob, Object obj) {
         if (obj instanceof Triple<?, ?, ?>) {
-            setChanged();
-            notifyObservers((Triple<Integer, Integer, Double>) obj);
+            var triple = (Triple<Integer, Integer, Double>) obj;
+            view.receiveUpd(triple.a, triple.b, triple.c);
         }
     }
 
     public void updateVals(int x, int y) {
-        setChanged();
-        notifyObservers(new Pair<Integer, Integer>(x, y));
+        model.receiveUpd(x, y);
     }
 }
